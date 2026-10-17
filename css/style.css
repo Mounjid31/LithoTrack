@@ -1,0 +1,1835 @@
+:root {
+  --bg-deep: #0a0e17;
+  --bg-panel: #111827;
+  --bg-card: #1a2332;
+  --border: #2a3548;
+  --accent: #00d4ff;
+  --accent-dim: #0891b2;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --radius: 6px;
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Toolbar */
+#toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: linear-gradient(90deg, #0c1220, #111827);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  font-size: 22px;
+}
+
+.brand h1 {
+  font-size: 18px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #00d4ff, #67e8f9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.tool-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.tool-btn:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* Main Layout */
+#main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.panel {
+  width: 280px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#right-panel {
+  border-right: none;
+  border-left: 1px solid var(--border);
+  width: 320px;
+}
+
+.panel-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-section h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.section-header h3 {
+  margin-bottom: 0;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.form-row label {
+  flex: 0 0 110px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.form-row input[type="number"],
+.form-row input[type="text"],
+.form-row select,
+.form-row textarea {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.form-row input[type="color"] {
+  width: 40px;
+  height: 28px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.form-row input[type="range"] {
+  flex: 1;
+}
+
+.form-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.primary-btn,
+.danger-btn,
+.small-btn {
+  border: none;
+  border-radius: var(--radius);
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0891b2, #00d4ff);
+  color: #0a0e17;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.primary-btn:hover {
+  filter: brightness(1.1);
+}
+.primary-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.danger-btn {
+  background: var(--danger);
+  color: white;
+}
+
+.small-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+}
+
+.small-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-row .primary-btn {
+  width: auto;
+  flex: 1;
+}
+
+.info-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.info-box strong {
+  color: var(--text);
+}
+
+/* View Mode Buttons */
+.view-mode-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.view-btn {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 4px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+
+.view-btn.active,
+.view-btn:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* Viewport */
+#viewport {
+  flex: 1;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+}
+
+#cesium-container {
+  width: 100%;
+  height: 100%;
+}
+
+#side-view-container {
+  position: absolute;
+  inset: 0;
+  background: #0a0e17;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#side-view-container.hidden {
+  display: none;
+}
+
+#geology-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  cursor: crosshair;
+}
+
+#view-label {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 14, 23, 0.85);
+  border: 1px solid var(--border);
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--accent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+#compass {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.compass-needle {
+  position: absolute;
+  width: 2px;
+  height: 18px;
+  background: linear-gradient(to bottom, #ef4444 50%, #e2e8f0 50%);
+  top: 6px;
+  border-radius: 1px;
+  transform-origin: bottom center;
+  transition: transform 0.3s;
+}
+
+.float-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.float-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 4px;
+  cursor: pointer;
+  font-size: 11px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-content {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Layers List */
+#layers-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.layer-item:hover,
+.layer-item.selected {
+  border-color: var(--accent);
+  background: #1e293b;
+}
+
+.layer-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.layer-name {
+  flex: 1;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.layer-depth {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.layer-vis {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.layer-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* Survey Table */
+.table-wrap {
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+#survey-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+#survey-table th {
+  background: var(--bg-card);
+  padding: 6px 4px;
+  text-align: left;
+  color: var(--text-muted);
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+#survey-table td {
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+#survey-table input {
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  padding: 2px 4px;
+  font-size: 11px;
+}
+
+#survey-table input:focus {
+  border-color: var(--accent);
+  outline: none;
+  background: var(--bg-card);
+}
+
+/* Lithology */
+#lith-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.lith-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.lith-item:hover {
+  border-color: var(--accent);
+}
+
+.lith-swatch {
+  width: 20px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Charts */
+#charts-panel {
+  height: 160px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  flex-shrink: 0;
+}
+
+.chart-box {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  position: relative;
+}
+
+.chart-box canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-content.small {
+  max-width: 400px;
+}
+
+.modal-content h2 {
+  margin-bottom: 16px;
+  color: var(--accent);
+}
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+.drop-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+#download-template {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+/* VE display */
+.ve-value {
+  text-align: center;
+  margin-top: 4px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dim);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Cesium overrides */
+.cesium-viewer-bottom,
+.cesium-viewer-toolbar,
+.cesium-viewer-animationContainer,
+.cesium-viewer-timelineContainer {
+  display: none !important;
+}
+
+.cesium-credit-logoContainer,
+.cesium-credit-textContainer {
+  display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .panel {
+    width: 240px;
+  }
+  #right-panel {
+    width: 280px;
+  }
+}
+
+@media (max-width: 900px) {
+  #left-panel,
+  #right-panel {
+    width: 220px;
+  }
+  #charts-panel {
+    height: 120px;
+  }
+}
+
+/* ===== Online / Offline Mode Switch ===== */
+.mode-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 16px;
+}
+
+.mode-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.mode-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+
+.mode-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: white;
+}
+
+.mode-btn#btn-mode-offline.active {
+  background: #065f46;
+  border-color: #10b981;
+}
+
+.mode-btn#btn-mode-online.active {
+  background: #1e40af;
+  border-color: #3b82f6;
+}
+
+.status-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.offline {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid #10b981;
+}
+
+.status-badge.online {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid #3b82f6;
+}
+
+.hint-text {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.primary-outline {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+.primary-outline:hover {
+  background: rgba(0, 212, 255, 0.1) !important;
+}
+
+.template-links {
+  display: flex;
+  gap: 16px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.template-links a {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+#offline-placeholder {
+  position: absolute;
+  inset: 0;
+  background: #0a0e17;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+#offline-placeholder .placeholder-content {
+  text-align: center;
+  color: var(--text-muted);
+  max-width: 360px;
+}
+
+#offline-placeholder h2 {
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+#offline-placeholder .primary-btn {
+  margin-top: 16px;
+  width: auto;
+  padding: 10px 24px;
+}
+
+.view-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+#toolbar {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ===== Paste from Excel ===== */
+.paste-section {
+  border-top: 1px solid var(--accent-dim);
+  background: rgba(0, 212, 255, 0.03);
+}
+
+.paste-box {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px dashed var(--border);
+  color: var(--text);
+  padding: 8px;
+  border-radius: 4px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.paste-box:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #0c1220;
+}
+
+.paste-preview {
+  margin-top: 8px;
+  max-height: 120px;
+  overflow: auto;
+  font-size: 11px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.paste-preview .ok {
+  color: #10b981;
+}
+.paste-preview .bad {
+  color: #ef4444;
+}
+
+/* Multi-well bar */
+.well-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 8px;
+  flex-wrap: wrap;
+}
+.well-bar label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.well-bar select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 8px;
+  border-radius: 4px;
+  max-width: 140px;
+}
+.active-well-label {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Spreadsheet grid */
+.ss-wrap {
+  max-height: 200px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.ss-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.ss-table th {
+  background: #1e293b;
+  color: var(--accent);
+  padding: 5px 4px;
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.ss-table td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.ss-table input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 4px 6px;
+  font-size: 11px;
+}
+.ss-table input:focus {
+  outline: none;
+  background: rgba(0, 212, 255, 0.08);
+}
+
+/* Casing items */
+.casing-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+.casing-seq {
+  color: var(--accent);
+  font-weight: 600;
+}
+.casing-depth,
+.casing-od {
+  color: var(--text-muted);
+}
+
+/* Lithology edit */
+.lith-item {
+  position: relative;
+}
+.lith-pat {
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+.lith-edit-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 12px;
+}
+.lith-editor {
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--accent-dim);
+  border-radius: 6px;
+}
+.lith-editor h4 {
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.casing-type {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(0, 212, 255, 0.15);
+  color: var(--accent);
+}
+.casing-item .casing-type:contains("Liner"),
+.casing-item span.casing-type {
+  font-weight: 600;
+}
+
+.color-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+  margin: 6px 0;
+}
+.color-palette button {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid #333;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 0;
+}
+.color-palette button:hover {
+  outline: 2px solid var(--accent);
+}
+#charts-panel {
+  height: 180px;
+}
+.chart-box.log-chart {
+  flex: 1.2;
+}
+.ss-wrap:focus {
+  outline: 1px solid var(--accent);
+}
+
+/* Vertical survey charts with independent scroll */
+#charts-panel {
+  height: 280px !important;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  padding: 6px;
+  overflow: hidden;
+}
+#charts-panel .chart-box {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card, #121a28);
+  border: 1px solid var(--border, #2a3548);
+  border-radius: 6px;
+  overflow: hidden;
+}
+#charts-panel .chart-label {
+  font-size: 10px;
+  color: var(--accent, #00d4ff);
+  text-align: center;
+  padding: 2px;
+  flex-shrink: 0;
+}
+#charts-panel .chart-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+#charts-panel .chart-scroll canvas {
+  width: 100% !important;
+  height: 600px !important; /* tall track — scroll inside */
+  min-height: 400px;
+}
+#charts-panel .chart-vertical .chart-scroll canvas {
+  height: 700px !important;
+}
+
+.charts-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--bg-card, #121a28);
+  border-top: 1px solid var(--border, #2a3548);
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+}
+.charts-toolbar #chart-zoom-label {
+  min-width: 40px;
+  text-align: center;
+  color: var(--accent, #00d4ff);
+  font-weight: 600;
+}
+
+/* Horizontal charts + zoom scroll */
+#charts-panel {
+  height: 200px !important;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  padding: 6px;
+  overflow: hidden;
+}
+#charts-panel .chart-box {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#charts-panel .chart-scroll {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+#charts-panel .chart-scroll canvas {
+  width: 100% !important;
+  height: 160px !important;
+  min-height: 120px;
+}
+
+/* Force survey charts visible */
+#charts-toolbar {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #0e1626;
+  border-top: 1px solid #1e2d45;
+  font-size: 11px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+#charts-panel {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px;
+  padding: 8px;
+  height: 200px !important;
+  min-height: 180px !important;
+  max-height: 280px;
+  background: #0a1220;
+  border-top: 1px solid #1e2d45;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+#charts-panel .chart-box {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #101a2c;
+  border: 1px solid #1e2d45;
+  border-radius: 8px;
+  overflow: hidden;
+}
+#charts-panel .chart-title {
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 4px 8px 0;
+  flex-shrink: 0;
+}
+#charts-panel .chart-scroll {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+#charts-panel .chart-scroll canvas {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 140px;
+}
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+#main-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ——— LithoTrack+ LWD / MWD formation evaluation ——— */
+.tabs {
+  flex-wrap: wrap;
+}
+.tab-btn {
+  flex: 1 1 auto;
+  min-width: 72px;
+}
+
+#side-view-container {
+  display: flex !important;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: stretch;
+  position: absolute;
+  inset: 0;
+}
+#geology-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+}
+#geology-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  display: block;
+  cursor: crosshair;
+}
+#mwd-log-panel {
+  width: 430px;
+  max-width: 48%;
+  flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #070b12;
+  border-left: 1px solid var(--border);
+  position: relative;
+}
+#mwd-log-panel.hidden {
+  display: none !important;
+}
+#mwd-log-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#mwd-log-toolbar span {
+  flex: 1;
+}
+#mwd-log-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: block;
+  cursor: crosshair;
+}
+#mwd-readout {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  background: rgba(7, 11, 18, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text);
+  min-width: 150px;
+  pointer-events: none;
+  z-index: 4;
+}
+#mwd-readout .rd-md {
+  color: var(--accent);
+  font-weight: 600;
+}
+#mwd-readout .rd-lith {
+  color: #fde68a;
+  margin-top: 4px;
+}
+
+#mwd-hud {
+  position: absolute;
+  top: 44px;
+  left: 16px;
+  z-index: 12;
+  background: rgba(10, 14, 23, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 180px;
+  max-width: 260px;
+  pointer-events: none;
+}
+#mwd-hud.hidden {
+  display: none;
+}
+.mwd-hud-kicker {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+#mwd-hud-lith {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+#mwd-hud-meta {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.mwd-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 1px solid var(--border);
+  background: #0c1220;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.mwd-subbtn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 5px 8px;
+  font-size: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mwd-subbtn:hover {
+  color: var(--text);
+}
+.mwd-subbtn.active {
+  color: var(--accent);
+  border-color: var(--border);
+  background: var(--bg-card);
+}
+.mwd-pane {
+  display: none;
+}
+.mwd-pane.active {
+  display: block;
+}
+
+.mwd-drop {
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 18px 12px;
+  text-align: center;
+  background: var(--bg-card);
+  margin: 8px 0;
+}
+.mwd-drop.dragover {
+  border-color: var(--accent);
+  background: #132033;
+}
+.mwd-drop input[type="file"] {
+  margin-top: 8px;
+  width: 100%;
+  color: var(--text-muted);
+}
+
+.sci-note {
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.45;
+  margin-top: 10px;
+  border-left: 2px solid #334155;
+  padding-left: 8px;
+}
+.mwd-map-box {
+  margin-top: 10px;
+}
+.mwd-map-box h4 {
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.mwd-quality {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.q-item {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+.q-item.ok {
+  border-color: #14532d;
+  color: #86efac;
+}
+.q-item.warn {
+  border-color: #854d0e;
+  color: #fde68a;
+}
+
+.mwd-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text);
+  margin: 6px 0;
+}
+.mwd-preview-wrap {
+  max-height: 280px;
+}
+#mwd-preview-table,
+#mwd-iv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+#mwd-preview-table th,
+#mwd-iv-table th {
+  background: var(--bg-card);
+  color: var(--text-muted);
+  text-align: left;
+  padding: 5px 4px;
+  position: sticky;
+  top: 0;
+}
+#mwd-preview-table td,
+#mwd-iv-table td {
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--border);
+}
+#mwd-preview-table .row-warn {
+  background: rgba(245, 158, 11, 0.1);
+}
+.iv-row {
+  cursor: pointer;
+}
+.iv-row:hover,
+.iv-row.selected-iv {
+  background: #1e293b;
+}
+.iv-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.man-tag {
+  font-size: 9px;
+  color: #fde68a;
+  border: 1px solid #854d0e;
+  border-radius: 3px;
+  padding: 0 4px;
+  margin-left: 4px;
+}
+.bound-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+.bound-line {
+  font-size: 10px;
+  color: var(--accent);
+  padding: 2px 0 2px 18px;
+  border-left: 1px dashed #334155;
+  margin-left: 5px;
+}
+
+.mwd-ctx {
+  position: fixed;
+  z-index: 4000;
+  background: #111827;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 180px;
+  padding: 4px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+.mwd-ctx .ctx-title {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 6px 8px 4px;
+}
+.mwd-ctx button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  padding: 7px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mwd-ctx button:hover {
+  background: #1e293b;
+}
+
+#mobile-bar {
+  display: none;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 20;
+}
+#mobile-bar button {
+  flex: 1;
+  min-height: 40px;
+}
+
+@media (max-width: 900px) {
+  #toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .brand h1 {
+    font-size: 15px;
+  }
+  .subtitle {
+    display: none;
+  }
+  #left-panel,
+  #right-panel {
+    display: none;
+  }
+  #left-panel.open,
+  #right-panel.open {
+    display: flex;
+    position: absolute;
+    z-index: 30;
+    top: 0;
+    bottom: 0;
+    width: min(320px, 92vw);
+    height: auto;
+    max-height: none;
+  }
+  #left-panel.open {
+    left: 0;
+  }
+  #right-panel.open {
+    right: 0;
+  }
+  #mobile-bar {
+    display: flex;
+  }
+  #side-view-container {
+    flex-direction: column;
+  }
+  #mwd-log-panel {
+    height: 42%;
+    width: 100%;
+    max-width: none;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  #charts-panel {
+    height: 140px !important;
+    min-height: 120px !important;
+  }
+  #mwd-hud {
+    top: 8px;
+    left: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-btn,
+  .primary-btn,
+  .small-btn,
+  .tab-btn {
+    transition: none;
+  }
+}
+
+/* ============================================
+   MWD / LWD FULL SCREEN MODE (100%)
+   Hides left panel + geology section
+   Right panel takes the entire main area
+   ============================================ */
+#app.mwd-expanded #left-panel,
+#app.mwd-expanded #side-view-container,
+#app.mwd-expanded #geology-wrap,
+#app.mwd-expanded #geology-canvas,
+#app.mwd-expanded #mwd-log-panel,
+#app.mwd-expanded #charts-panel {
+  display: none !important;
+}
+
+#app.mwd-expanded #right-panel {
+  width: 100% !important;
+  max-width: none !important;
+  border: none !important;
+  flex: 1 1 auto;
+  position: relative;
+  z-index: 10;
+}
+
+#app.mwd-expanded .tabs {
+  background: #0b1220;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+#app.mwd-expanded .tab-btn {
+  font-size: 13px;
+  padding: 7px 12px;
+}
+
+#app.mwd-expanded #tab-mwd.tab-content.active {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#app.mwd-expanded .mwd-subnav {
+  flex-shrink: 0;
+  background: #0d1520;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  gap: 6px;
+}
+
+#app.mwd-expanded .mwd-pane {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 8px 12px 20px;
+}
+
+#app.mwd-expanded .mwd-pane.active {
+  display: block !important;
+}
+
+/* Indicator in the header */
+#app.mwd-expanded .brand .subtitle::after {
+  content: " · MWD Full Screen";
+  color: #00d4ff;
+  font-weight: 600;
+}
+
+/* Make the main layout only show the right panel */
+#app.mwd-expanded #main-layout {
+  display: flex;
+}
+
+/* ============================================
+   LithoTrack Professional Workspace
+   ============================================ */
+
+/* Collapse tabs (floating) */
+.ws-collapse-tab {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  width: 22px;
+  height: 56px;
+  border: 1px solid var(--border);
+  background: #0f172a;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 6px 6px 0;
+  transition: background 0.15s, color 0.15s;
+}
+.ws-collapse-tab:hover {
+  background: #1e293b;
+  color: #00d4ff;
+}
+.ws-collapse-tab.left {
+  left: 0;
+  border-radius: 0 6px 6px 0;
+}
+.ws-collapse-tab.left.collapsed {
+  left: 0;
+}
+.ws-collapse-tab.right {
+  right: 0;
+  border-radius: 6px 0 0 6px;
+}
+
+/* When left is open, push tab to panel edge */
+#app:not(.ws-left-closed) .ws-collapse-tab.left {
+  left: var(--left-w, 260px);
+}
+#app:not(.ws-right-closed) .ws-collapse-tab.right {
+  right: var(--right-w, 320px);
+}
+
+/* Resize handles */
+.ws-resize-handle.vertical {
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+.ws-resize-handle.vertical:hover,
+body.ws-resizing .ws-resize-handle.vertical {
+  background: #00d4ff44;
+}
+.ws-resize-handle.horizontal {
+  height: 5px;
+  cursor: row-resize;
+  background: transparent;
+  width: 100%;
+}
+.ws-resize-handle.horizontal:hover {
+  background: #00d4ff44;
+}
+
+body.ws-resizing {
+  cursor: col-resize !important;
+  user-select: none;
+}
+body.ws-resizing * {
+  cursor: col-resize !important;
+}
+
+/* Charts bar */
+#ws-charts-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  background: #0b1220;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 15;
+}
+.charts-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: #94a3b8;
+  font-size: 11px;
+  padding: 2px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+}
+.charts-toggle-btn:hover {
+  color: #00d4ff;
+  border-color: #00d4ff;
+}
+
+#charts-panel {
+  transition: height 0.2s ease;
+  overflow: hidden;
+}
+#charts-panel.ws-collapsed {
+  height: 0 !important;
+  min-height: 0 !important;
+  border: none;
+}
+
+/* Geo tools group */
+.geo-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 10px;
+  padding-right: 10px;
+  border-right: 1px solid var(--border);
+}
+.ws-tool.active {
+  background: #0e7490 !important;
+  color: #fff !important;
+  border-color: #00d4ff !important;
+}
+
+/* Panel collapsed state */
+.panel.ws-collapsed {
+  display: none !important;
+}
+
+/* Ensure main layout fills */
+#app {
+  height: 100vh;
+  overflow: hidden;
+}
+#main-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+#viewport {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Compact default panels */
+#left-panel {
+  width: 260px;
+}
+#right-panel {
+  width: 320px;
+}
+
+/* Hide online remnants */
+.mode-switch,
+#btn-mode-online,
+#btn-mode-offline,
+#connection-status {
+  display: none !important;
+}
+
+/* LWD full mode still works with workspace */
+#app.mwd-expanded #ws-left-tab,
+#app.mwd-expanded #ws-right-tab,
+#app.mwd-expanded #ws-left-resize,
+#app.mwd-expanded #ws-right-resize {
+  display: none !important;
+}
+@media print {
+  @page {
+    margin: 0;
+  }
+}

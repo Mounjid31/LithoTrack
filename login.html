@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LithoTrack — Sign in</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(ellipse at top, #132238 0%, #070b12 60%);
+      color: #e2e8f0;
+    }
+    .card {
+      width: min(420px, 92vw);
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 28px 24px 22px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+    h1 { margin: 0 0 4px; font-size: 22px; color: #38bdf8; }
+    .sub { margin: 0 0 20px; color: #94a3b8; font-size: 13px; }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+    input {
+      width: 100%; padding: 10px 12px; margin-bottom: 12px;
+      border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #f1f5f9;
+    }
+    input:focus { outline: 1px solid #38bdf8; }
+    .row { display: flex; gap: 8px; margin-top: 8px; }
+    button {
+      flex: 1; padding: 11px 12px; border: 0; border-radius: 8px; cursor: pointer;
+      font-weight: 600; font-size: 13px;
+    }
+    .primary { background: #0ea5e9; color: #041018; }
+    .ghost { background: #1e293b; color: #e2e8f0; }
+    .msg { min-height: 18px; font-size: 12px; color: #f87171; margin-top: 8px; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+    .tabs button { background: #1e293b; color: #94a3b8; }
+    .tabs button.active { background: #0369a1; color: #fff; }
+    .hidden { display: none; }
+    .hint { font-size: 11px; color: #64748b; margin-top: 14px; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>LithoTrack</h1>
+    <p class="sub">Sign in with your account</p>
+    <div class="tabs">
+      <button type="button" id="tab-login" class="active">Sign in</button>
+      <button type="button" id="tab-signup">Create account</button>
+    </div>
+
+    <div id="form-login">
+      <label>Email</label>
+      <input id="login-email" type="email" placeholder="you@company.com" autocomplete="username" />
+      <label>Password</label>
+      <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
+      <div class="row">
+        <button type="button" class="primary" id="btn-login">Sign in</button>
+      </div>
+    </div>
+
+    <div id="form-signup" class="hidden">
+      <label>Name</label>
+      <input id="su-name" type="text" placeholder="Your name" />
+      <label>Email</label>
+      <input id="su-email" type="email" placeholder="you@company.com" />
+      <label>Password (min 6)</label>
+      <input id="su-pass" type="password" placeholder="min 6 characters" />
+      <div class="row">
+        <button type="button" class="primary" id="btn-signup">Create account</button>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <p class="hint">Accounts are stored securely in Firebase. After sign-in you can use LithoTrack online from any device.</p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Helpful boot check
+    window.addEventListener('load', function () {
+      if (typeof firebase === 'undefined') {
+        var m = document.getElementById('msg');
+        if (m) {
+          m.style.color = '#f87171';
+          m.textContent = 'Firebase SDK failed to load. Use Live Server (http://localhost) + internet. Do not open file:// directly.';
+        }
+      }
+    });
+  </script>
+  <script>
+    const msg = document.getElementById('msg');
+    function show(t, ok) {
+      msg.style.color = ok ? '#34d399' : '#f87171';
+      msg.textContent = t || '';
+    }
+    function mapErr(e) {
+      const c = (e && e.code) || '';
+      if (c.includes('email-already-in-use')) return 'Email already registered';
+      if (c.includes('weak-password')) return 'Password too weak (min 6)';
+      if (c.includes('invalid-email')) return 'Invalid email';
+      if (c.includes('user-not-found') || c.includes('wrong-password') || c.includes('invalid-credential'))
+        return 'Wrong email or password';
+      if (c.includes('network')) return 'Network error — check internet';
+      return (e && e.message) || 'Something went wrong';
+    }
+
+    LithoAuth.onAuth(function (user) {
+      if (user) location.replace('index.html');
+    });
+
+    document.getElementById('tab-login').onclick = () => {
+      document.getElementById('tab-login').classList.add('active');
+      document.getElementById('tab-signup').classList.remove('active');
+      document.getElementById('form-login').classList.remove('hidden');
+      document.getElementById('form-signup').classList.add('hidden');
+      show('');
+    };
+    document.getElementById('tab-signup').onclick = () => {
+      document.getElementById('tab-signup').classList.add('active');
+      document.getElementById('tab-login').classList.remove('active');
+      document.getElementById('form-signup').classList.remove('hidden');
+      document.getElementById('form-login').classList.add('hidden');
+      show('');
+    };
+
+    document.getElementById('btn-login').onclick = async () => {
+      show('Signing in…', true);
+      try {
+        await LithoAuth.login(
+          document.getElementById('login-email').value,
+          document.getElementById('login-pass').value
+        );
+        location.replace('index.html');
+      } catch (e) { show(mapErr(e)); }
+    };
+
+    document.getElementById('btn-signup').onclick = async () => {
+      show('Creating account…', true);
+      try {
+        await LithoAuth.signup(
+          document.getElementById('su-name').value,
+          document.getElementById('su-email').value,
+          document.getElementById('su-pass').value
+        );
+        location.replace('index.html');
+      } catch (e) { show(mapErr(e)); }
+    };
+  </script>
+</body>
+</html>

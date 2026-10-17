@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LithoTrack — Admin Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+      background: #070b12; color: #e2e8f0; min-height: 100vh;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 20px; background: #0f172a; border-bottom: 1px solid #1e293b;
+    }
+    h1 { margin: 0; font-size: 18px; color: #38bdf8; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    button, a.btn {
+      padding: 8px 12px; border-radius: 8px; border: 0; cursor: pointer;
+      background: #1e293b; color: #e2e8f0; text-decoration: none; font-size: 13px;
+    }
+    button.primary { background: #0ea5e9; color: #041018; font-weight: 600; }
+    main { padding: 20px; max-width: 1100px; margin: 0 auto; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .card {
+      background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px;
+    }
+    .card .n { font-size: 28px; font-weight: 700; color: #38bdf8; }
+    .card .l { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 12px; overflow: hidden; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #1e293b; font-size: 13px; }
+    th { color: #94a3b8; font-weight: 600; background: #111827; }
+    .msg { color: #f87171; margin: 12px 0; }
+    .ok { color: #34d399; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>LithoTrack Admin</h1>
+    <div class="actions">
+      <a class="btn" href="index.html">Open App</a>
+      <button type="button" id="btn-refresh" class="primary">Refresh</button>
+      <button type="button" id="btn-logout">Logout</button>
+    </div>
+  </header>
+  <main>
+    <div id="gate-msg" class="msg">Checking access…</div>
+    <div id="dash" class="hidden">
+      <div class="cards">
+        <div class="card"><div class="n" id="stat-users">0</div><div class="l">Registered users</div></div>
+        <div class="card"><div class="n" id="stat-week">0</div><div class="l">Joined last 7 days</div></div>
+        <div class="card"><div class="n" id="stat-you">—</div><div class="l">Signed in as</div></div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Created</th><th>Last login</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const gate = document.getElementById('gate-msg');
+    const dash = document.getElementById('dash');
+    function fmt(d) {
+      if (!d) return '—';
+      try { return d.toLocaleString(); } catch (e) { return String(d); }
+    }
+    async function load() {
+      const user = await LithoAuth.requireUser();
+      if (!user) { location.replace('login.html'); return; }
+      if (!LithoAuth.isAdmin(user.email)) {
+        gate.className = 'msg';
+        gate.textContent = 'Access denied. Add your email to LITHO_ADMIN_EMAILS in js/firebase-config.js';
+        return;
+      }
+      gate.className = 'msg ok';
+      gate.textContent = 'Admin access granted';
+      dash.classList.remove('hidden');
+      document.getElementById('stat-you').textContent = user.email;
+      try {
+        const list = await LithoAuth.listUsers();
+        document.getElementById('stat-users').textContent = list.length;
+        const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
+        document.getElementById('stat-week').textContent = list.filter(u => u.createdAt && u.createdAt.getTime() > weekAgo).length;
+        const tb = document.getElementById('tbody');
+        tb.innerHTML = list.map(u =>
+          '<tr><td>' + (u.name || '—') + '</td><td>' + (u.email || '') +
+          '</td><td>' + fmt(u.createdAt) + '</td><td>' + fmt(u.lastLoginAt) + '</td></tr>'
+        ).join('') || '<tr><td colspan="4">No users yet</td></tr>';
+      } catch (e) {
+        gate.className = 'msg';
+        gate.textContent = 'Could not load users. Check Firestore rules / Email-Password enabled. ' + (e.message || e);
+      }
+    }
+    document.getElementById('btn-refresh').onclick = load;
+    document.getElementById('btn-logout').onclick = async () => {
+      await LithoAuth.logout();
+      location.replace('login.html');
+    };
+    load();
+  </script>
+</body>
+</html>

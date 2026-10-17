@@ -1,0 +1,8 @@
+Formation,Top Depth,Bottom Depth,Lithology,Color,Opacity,Description
+Top Soil,0,20,Top Soil,#8B7355,0.9,Surface soil cover
+Sand,20,200,Sand,#F4D03F,0.85,Unconsolidated sand
+Sandstone,200,850,Sandstone,#E67E22,0.85,Reservoir sandstone
+Shale,850,1600,Shale,#5D6D7E,0.85,Seal shale
+Limestone,1600,2500,Limestone,#AED6F1,0.85,Carbonate formation
+Dolomite,2500,3200,Dolomite,#5DADE2,0.85,Dolomitized carbonate
+Basement,3200,4000,Basement,#6C3483,0.9,Crystalline basement
