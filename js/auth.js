@@ -17,7 +17,7 @@ const LithoAuth = {
           return;
         }
         if (Date.now() - t0 > timeoutMs) {
-          reject(new Error('Firebase SDK not loaded. Open the app via Live Server (http://) not as a local file, and check internet.'));
+          reject(new Error('Firebase SDK not loaded. Use https:// site or Live Server, and check internet.'));
           return;
         }
         setTimeout(tick, 50);
@@ -41,7 +41,24 @@ const LithoAuth = {
 
   isAdmin(email) {
     var list = window.LITHO_ADMIN_EMAILS || [];
-    return !!email && list.map(function (e) { return String(e).toLowerCase(); }).indexOf(String(email).toLowerCase()) >= 0;
+    return !!email && list.map(function (e) { return String(e).toLowerCase().trim(); })
+      .indexOf(String(email).toLowerCase().trim()) >= 0;
+  },
+
+  saveProfile: async function (user, extra) {
+    if (!user) return;
+    extra = extra || {};
+    var data = {
+      uid: user.uid,
+      email: (user.email || '').toLowerCase(),
+      name: extra.name != null ? extra.name : (user.displayName || ''),
+      lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
+      provider: 'password'
+    };
+    if (extra.isNew) {
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    }
+    await this.db.collection('users').doc(user.uid).set(data, { merge: true });
   },
 
   signup: async function (name, email, password) {
@@ -57,15 +74,12 @@ const LithoAuth = {
     if (name) {
       try { await user.updateProfile({ displayName: name }); } catch (e) {}
     }
-    var profile = {
-      uid: user.uid,
-      email: user.email,
-      name: name || '',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
-      provider: 'password'
-    };
-    await this.db.collection('users').doc(user.uid).set(profile, { merge: true });
+    try {
+      await this.saveProfile(user, { name: name, isNew: true });
+    } catch (e) {
+      console.error('Firestore profile write failed on signup:', e);
+      throw new Error('Account created in Auth, but profile was not saved to database. Check Firestore Rules. (' + (e.message || e) + ')');
+    }
     return user;
   },
 
@@ -76,11 +90,7 @@ const LithoAuth = {
     var cred = await this.auth.signInWithEmailAndPassword(email, password);
     var user = cred.user;
     try {
-      await this.db.collection('users').doc(user.uid).set({
-        email: user.email,
-        name: user.displayName || '',
-        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      await this.saveProfile(user, { isNew: false });
     } catch (e) {
       console.warn('profile update failed', e);
     }
@@ -90,7 +100,6 @@ const LithoAuth = {
   logout: async function () {
     await this.init();
     await this.auth.signOut();
-    try { localStorage.removeItem('lithotrack_session'); } catch (e) {}
   },
 
   currentUser: function () {
@@ -117,10 +126,18 @@ const LithoAuth = {
     });
   },
 
+  /** List all user profiles (needs Firestore read permission) */
   listUsers: async function () {
     await this.init();
-    var snap = await this.db.collection('users').orderBy('createdAt', 'desc').limit(500).get();
-    return snap.docs.map(function (d) {
+    var snap;
+    try {
+      // simple get — no composite index required
+      snap = await this.db.collection('users').get();
+    } catch (e) {
+      console.error(e);
+      throw new Error('Cannot read users collection. Fix Firestore Rules (allow read for signed-in users). ' + (e.message || e));
+    }
+    var list = snap.docs.map(function (d) {
       var x = d.data() || {};
       return {
         uid: d.id,
@@ -130,5 +147,11 @@ const LithoAuth = {
         lastLoginAt: x.lastLoginAt && x.lastLoginAt.toDate ? x.lastLoginAt.toDate() : null
       };
     });
+    list.sort(function (a, b) {
+      var ta = a.createdAt ? a.createdAt.getTime() : 0;
+      var tb = b.createdAt ? b.createdAt.getTime() : 0;
+      return tb - ta;
+    });
+    return list;
   }
 };
