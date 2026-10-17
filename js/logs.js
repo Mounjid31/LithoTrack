@@ -243,35 +243,6 @@ const GasParams = {
   }
 };
 
-const ExportHeader = {
-  fields: {
-    company: 'G.P.C',
-    rig: 'ADMARINE III',
-    field: 'NORTH AMER OFFSHORE',
-    area: 'GULF OF SUEZ',
-    country: 'EGYPT',
-    wellName: 'GG 83-3E',
-    airGap: '16 MT',
-    wd: '63 MT',
-    rkb: '32 MT',
-    spudDate: '',
-    tdDate: '',
-    tdDepth: '',
-    wellStatus: 'DEVIATED DEVELOPMENT WELL',
-    coordX: '',
-    coordY: '',
-    latitude: '',
-    longitude: '',
-    geologist: '',
-    crew: '',
-    wellConfig: '',
-    scale: '1:1000'
-  },
-  showDrillCharts: true,
-  showGasCharts: true,
-  includeComments: true
-};
-
 /** Free comments at depth + horizontal position */
 const CommentsManager = {
   items: [],
