@@ -9,8 +9,11 @@ window.LITHO_FIREBASE_CONFIG = {
   storageBucket: "lithotrack.firebasestorage.app",
   messagingSenderId: "829491055005",
   appId: "1:829491055005:web:6feafe6393796930dcc774",
-  measurementId: "G-8KRKSWWJS2",
+  measurementId: "G-8KRKSWWJS2"
 };
 
 /** Change this to YOUR email to open the admin dashboard */
-window.LITHO_ADMIN_EMAILS = ["mongedmokhtar4@gmail.com"];
+window.LITHO_ADMIN_EMAILS = [
+  // Put the EXACT email you use to Sign in (lowercase ok)
+  "mongedmokhtar4@gmail.com"
+];
