@@ -798,16 +798,22 @@
   <script src="js/firebase-config.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // Block app until Firebase session exists
+    // Block entire app until verified login
     (function () {
-      function boot() {
+      async function boot() {
         if (typeof LithoAuth === 'undefined') {
           location.replace('login.html');
           return;
         }
-        LithoAuth.onAuth(function (user) {
-          if (!user) location.replace('login.html');
-        });
+        try {
+          var user = await LithoAuth.requireVerifiedUser();
+          if (!user) {
+            location.replace('login.html');
+            return;
+          }
+        } catch (e) {
+          location.replace('login.html');
+        }
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
       else boot();
