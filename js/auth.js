@@ -80,24 +80,13 @@ const LithoAuth = {
       try { await user.updateProfile({ displayName: name }); } catch (e) {}
     }
 
-    // Send verification email
-    try {
-      await user.sendEmailVerification();
-    } catch (e) {
-      console.warn('sendEmailVerification failed', e);
-    }
-
     try {
       await this.saveProfile(user, { name: name, isNew: true });
     } catch (e) {
       console.error('Firestore profile write failed:', e);
       throw new Error('Account created, but profile was not saved. Check Firestore Rules.');
     }
-
-    // Sign out until they verify (optional hard gate)
-    try { await this.auth.signOut(); } catch (e) {}
-
-    return { needsVerification: true, email: email };
+    return user;
   },
 
   login: async function (email, password) {
@@ -106,17 +95,6 @@ const LithoAuth = {
     password = String(password || '');
     var cred = await this.auth.signInWithEmailAndPassword(email, password);
     var user = cred.user;
-
-    // Reload to get latest emailVerified status
-    try { await user.reload(); } catch (e) {}
-
-    if (!user.emailVerified) {
-      try { await user.sendEmailVerification(); } catch (e) {}
-      await this.auth.signOut();
-      var err = new Error('Please verify your email first. We sent a confirmation link to ' + email);
-      err.code = 'auth/email-not-verified';
-      throw err;
-    }
 
     try {
       await this.saveProfile(user, { isNew: false });
@@ -165,27 +143,14 @@ const LithoAuth = {
     });
   },
 
-  /**
-   * Require logged-in + verified email.
-   * Redirects to login.html if not.
-   */
+  /** Require logged-in user only (no email verification). */
   requireVerifiedUser: async function () {
     await this.init();
     var self = this;
     return new Promise(function (resolve) {
-      var unsub = self.auth.onAuthStateChanged(async function (user) {
+      var unsub = self.auth.onAuthStateChanged(function (user) {
         unsub();
-        if (!user) {
-          resolve(null);
-          return;
-        }
-        try { await user.reload(); } catch (e) {}
-        if (!user.emailVerified) {
-          try { await self.auth.signOut(); } catch (e) {}
-          resolve(null);
-          return;
-        }
-        resolve(user);
+        resolve(user || null);
       });
     });
   },
