@@ -55,7 +55,7 @@
       </div>
       <table>
         <thead>
-          <tr><th>Name</th><th>Email</th><th>Created</th><th>Last login</th></tr>
+          <tr><th>Name</th><th>Email</th><th>Verified</th><th>Created</th><th>Last login</th></tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -94,8 +94,9 @@
         const tb = document.getElementById('tbody');
         tb.innerHTML = list.map(u =>
           '<tr><td>' + (u.name || '—') + '</td><td>' + (u.email || '') +
+          '</td><td>' + (u.emailVerified ? 'Yes' : 'No') +
           '</td><td>' + fmt(u.createdAt) + '</td><td>' + fmt(u.lastLoginAt) + '</td></tr>'
-        ).join('') || '<tr><td colspan="4">No users yet</td></tr>';
+        ).join('') || '<tr><td colspan="5">No users yet</td></tr>';
       } catch (e) {
         gate.className = 'msg';
         gate.textContent = 'Could not load users. Check Firestore rules / Email-Password enabled. ' + (e.message || e);
