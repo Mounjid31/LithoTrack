@@ -48,7 +48,7 @@
 <body>
   <div class="card">
     <h1>LithoTrack</h1>
-    <p class="sub">Sign in required. No access without a verified account.</p>
+    <p class="sub">Sign in required to use LithoTrack.</p>
     <div class="tabs">
       <button type="button" id="tab-login" class="active">Sign in</button>
       <button type="button" id="tab-signup">Create account</button>
@@ -63,7 +63,6 @@
       <div class="row">
         <button type="button" class="primary" id="btn-login">Sign in</button>
       </div>
-      <button type="button" class="linkish" id="btn-resend">Resend verification email</button>
     </div>
 
     <div id="form-signup" class="hidden">
@@ -76,7 +75,7 @@
       <div class="row">
         <button type="button" class="primary" id="btn-signup">Create account</button>
       </div>
-      <p class="hint">After signup we email you a confirmation link. You must verify before signing in.</p>
+      <p class="hint">After creating an account you can sign in immediately.</p>
     </div>
 
     <div id="form-reset" class="hidden">
@@ -124,7 +123,7 @@
     }
 
     LithoAuth.onAuth(function (user) {
-      if (user && user.emailVerified) location.replace('index.html');
+      if (user) location.replace('index.html');
     });
 
     document.getElementById('tab-login').onclick = function () { showForm('login'); };
@@ -145,14 +144,12 @@
     document.getElementById('btn-signup').onclick = async function () {
       show('Creating account…', true);
       try {
-        var r = await LithoAuth.signup(
+        await LithoAuth.signup(
           document.getElementById('su-name').value,
           document.getElementById('su-email').value,
           document.getElementById('su-pass').value
         );
-        show('Account created. Check your inbox for a verification link, then Sign in.', true);
-        showForm('login');
-        document.getElementById('login-email').value = r.email || '';
+        location.replace('index.html');
       } catch (e) { show(mapErr(e)); }
     };
 
