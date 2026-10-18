@@ -1,159 +1,835 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
+<html lang="ar" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://*.googleapis.com https://*.firebaseio.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net https://*.firebasestorage.app wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; worker-src 'self' blob:;">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LithoTrack — Sign in</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: radial-gradient(ellipse at top, #132238 0%, #070b12 60%);
-      color: #e2e8f0;
-    }
-    .card {
-      width: min(420px, 92vw);
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 16px;
-      padding: 28px 24px 22px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
-    }
-    h1 { margin: 0 0 4px; font-size: 22px; color: #38bdf8; }
-    .sub { margin: 0 0 20px; color: #94a3b8; font-size: 13px; }
-    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
-    input {
-      width: 100%; padding: 10px 12px; margin-bottom: 12px;
-      border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #f1f5f9;
-    }
-    input:focus { outline: 1px solid #38bdf8; }
-    .row { display: flex; gap: 8px; margin-top: 8px; }
-    button {
-      flex: 1; padding: 11px 12px; border: 0; border-radius: 8px; cursor: pointer;
-      font-weight: 600; font-size: 13px;
-    }
-    .primary { background: #0ea5e9; color: #041018; }
-    .ghost { background: #1e293b; color: #e2e8f0; }
-    .msg { min-height: 18px; font-size: 12px; color: #f87171; margin-top: 8px; }
-    .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
-    .tabs button { background: #1e293b; color: #94a3b8; }
-    .tabs button.active { background: #0369a1; color: #fff; }
-    .hidden { display: none; }
-    .hint { font-size: 11px; color: #64748b; margin-top: 14px; line-height: 1.45; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>LithoTrack</h1>
-    <p class="sub">Sign in with your account</p>
-    <div class="tabs">
-      <button type="button" id="tab-login" class="active">Sign in</button>
-      <button type="button" id="tab-signup">Create account</button>
-    </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LithoTrack — Geological Interpretation Workstation</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Offline libraries (local) -->
+    <script src="libs/xlsx.full.min.js"></script>
+    <script src="libs/chart.umd.min.js"></script>
+    <script src="libs/jspdf.umd.min.js"></script>
+    <style>
+      #btn-mode-online,
+      #basemap-select,
+      #btn-view-globe,
+      #btn-view-bird,
+      #cesium-container {
+        display: none !important;
+      }
+      .hdr-dyn-item {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+      .hdr-dyn-item input {
+        flex: 1;
+      }
+      .shortcut-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 6px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+  <!-- Firebase auth gate runs after SDK load at bottom -->
 
-    <div id="form-login">
-      <label>Email</label>
-      <input id="login-email" type="email" placeholder="you@company.com" autocomplete="username" />
-      <label>Password</label>
-      <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
-      <div class="row">
-        <button type="button" class="primary" id="btn-login">Sign in</button>
+    <div id="app">
+      <!-- Top Toolbar -->
+      <header id="toolbar">
+        <div class="brand">
+          <span class="logo">🌍</span>
+          <h1>LithoTrack</h1>
+          <span class="subtitle">Geological Interpretation Workstation</span>
+        </div>
+
+        <div class="well-bar">
+          <label>Well:</label>
+          <select id="well-selector" title="Switch well"></select>
+          <button id="btn-add-well" class="tool-btn" title="Add Well">
+            + Well
+          </button>
+          <button id="btn-rename-well" class="tool-btn" title="Rename">
+            ✎
+          </button>
+          <button id="btn-del-well" class="tool-btn" title="Delete Well">
+            ×
+          </button>
+          <span id="active-well-label" class="active-well-label"></span>
+        </div>
+        <div class="geo-tools">
+          <button
+            type="button"
+            class="ws-tool tool-btn active"
+            data-tool="select"
+            title="Select"
+          >
+            ↖
+          </button>
+          <button
+            type="button"
+            class="ws-tool tool-btn"
+            data-tool="hand"
+            title="Hand / Pan"
+          >
+            ✋
+          </button>
+          <button
+            type="button"
+            class="tool-btn"
+            id="btn-zoom-in"
+            title="Zoom in (depth)"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            class="tool-btn"
+            id="btn-zoom-out"
+            title="Zoom out (depth)"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            class="tool-btn"
+            id="btn-fit-depth"
+            title="Fit depth"
+          >
+            Fit
+          </button>
+          <button
+            type="button"
+            class="tool-btn"
+            id="btn-reset-view"
+            title="Reset view"
+          >
+            Reset
+          </button>
+        </div>
+        <div class="toolbar-actions">
+          <button id="btn-new" class="tool-btn" title="New Project">New</button>
+          <button id="btn-save" class="tool-btn" title="Save Project">
+            Save
+          </button>
+          <button id="btn-load" class="tool-btn" title="Load Project">
+            Load
+          </button>
+
+          <button
+            id="btn-save-img"
+            class="tool-btn"
+            title="Save section as PNG"
+          >
+            Save IMG
+          </button>
+          <button id="btn-reload" class="tool-btn" title="Reload application">
+            Reload
+          </button>
+          <button
+            id="btn-shortcuts"
+            class="tool-btn"
+            title="Keyboard shortcuts"
+          >
+            Keys
+          </button>
+          <a id="btn-dashboard" class="tool-btn" href="dashboard.html" title="Admin dashboard" style="text-decoration:none;display:inline-flex;align-items:center;">Dashboard</a>
+          <button id="btn-logout" class="tool-btn" title="Sign out">Logout</button>
+        <button id="btn-export" class="tool-btn" title="Export">
+            Export
+          </button>
+          <button
+            id="btn-toggle-comments"
+            class="tool-btn"
+            title="Show/Hide comments"
+          >
+            💬
+          </button>
+          <button id="btn-undo" class="tool-btn" title="Undo">↶</button>
+          <button id="btn-redo" class="tool-btn" title="Redo">↷</button>
+          <button id="btn-fullscreen" class="tool-btn" title="Fullscreen">
+            ⛶
+          </button>
+        </div>
+      </header>
+
+      <div id="main-layout">
+        <!-- Left Panel -->
+        <aside id="left-panel" class="panel">
+<div class="panel-section">
+            <h3>🧭 Section Controls</h3>
+            <div class="form-row">
+              <label>Section Azimuth (°)</label>
+              <input
+                type="number"
+                id="section-azimuth"
+                value="90"
+                min="0"
+                max="360"
+                step="1"
+              />
+            </div>
+            <div class="form-row">
+              <label>Section Length (m)</label>
+              <input
+                type="number"
+                id="section-length"
+                value="5000"
+                min="100"
+                step="100"
+              />
+            </div>
+            <div class="form-row">
+              <label>Section Width (m)</label>
+              <input
+                type="number"
+                id="section-width"
+                value="2000"
+                min="50"
+                step="50"
+              />
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h3>📏 Units & Depth</h3>
+            <div class="form-row">
+              <label>Depth Units</label>
+              <select id="depth-units">
+                <option value="m">Meters</option>
+                <option value="ft">Feet</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Min Depth</label>
+              <input type="number" id="min-depth" value="0" step="10" />
+            </div>
+            <div class="form-row">
+              <label>Max Depth</label>
+              <input type="number" id="max-depth" value="3500" step="10" />
+            </div>
+            <div class="form-row">
+              <label>From Filter</label>
+              <input type="number" id="filter-from" value="0" step="10" />
+            </div>
+            <div class="form-row">
+              <label>To Filter</label>
+              <input type="number" id="filter-to" value="3500" step="10" />
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h3>⬆️ Vertical Exaggeration</h3>
+            <input
+              type="range"
+              id="ve-slider"
+              min="1"
+              max="10"
+              value="2"
+              step="0.5"
+            />
+            <div class="ve-value"><span id="ve-display">2.0</span>x</div>
+          </div>
+        </aside>
+
+        <!-- Center Visualization -->
+        <main id="viewport">
+          <div id="cesium-container" class="hidden"></div>
+          <div id="side-view-container">
+            <div id="geology-wrap">
+              <canvas id="geology-canvas"></canvas>
+              <div id="side-info-overlay"></div>
+            </div>
+          </div>
+          <div id="offline-placeholder" class="hidden">
+            <div class="placeholder-content">
+              <h2>Offline Mode</h2>
+              <p>Globe & satellite maps need internet.</p>
+              <p>
+                Use <strong>Side View</strong> for geological cross-section.
+              </p>
+              <button class="primary-btn" id="btn-switch-side">
+                Open Side View
+              </button>
+            </div>
+          </div>
+          <div id="view-label">SIDE VIEW — Geological Cross-Section</div>
+          <div id="compass" title="Reset North" class="hidden">
+            <div class="compass-needle"></div>
+            <span>N</span>
+          </div>
+          <button
+            id="btn-home"
+            class="float-btn hidden"
+            title="Home / Reset Camera"
+          >
+            🏠
+          </button>
+        </main>
+
+        <!-- Right Panel -->
+        <aside id="right-panel" class="panel">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="layers">Layers</button>
+            <button class="tab-btn" data-tab="well">Well</button>
+            <button class="tab-btn" data-tab="casing">Casing</button>
+            <button class="tab-btn" data-tab="tops">Tops</button>
+            <button class="tab-btn" data-tab="comments">Comments</button>
+            <button class="tab-btn" data-tab="lithology">Lithology</button>
+            
+            <button class="tab-btn" data-tab="shortcuts">Keys</button>
+            <button class="tab-btn" data-tab="stats">Stats</button>
+          </div>
+          <!-- Layers Tab -->
+          <div id="tab-layers" class="tab-content active">
+            <div class="panel-section">
+              <div class="section-header">
+                <h3>Geological Layers</h3>
+                <button id="btn-add-layer" class="small-btn">+ Add</button>
+                <button id="btn-clear-layers" class="small-btn">Clear</button>
+              </div>
+              <div id="layers-list"></div>
+              <div class="layer-actions">
+                <button id="btn-reset-layers" class="small-btn">Reset</button>
+                <button
+                  id="btn-import-layers"
+                  class="small-btn primary-outline"
+                >
+                  📥 File
+                </button>
+              </div>
+            </div>
+
+            <!-- Spreadsheet-like data entry -->
+            <div class="panel-section paste-section">
+              <div class="section-header">
+                <h3>📋 Layers Grid (Excel-style)</h3>
+              </div>
+              <p class="hint-text">
+                Edit cells or paste from Excel (Ctrl+V). Headers fixed.
+              </p>
+              <div class="ss-wrap">
+                <table class="ss-table" id="ss-layers">
+                  <thead>
+                    <tr>
+                      <th>Formation</th>
+                      <th>Top</th>
+                      <th>Bottom</th>
+                      <th>Lithology</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ss-layers-body"></tbody>
+                </table>
+              </div>
+              <div class="btn-row" style="margin-top: 8px">
+                <button id="btn-ss-add-row" class="small-btn">+ Row</button>
+                <button id="btn-paste-layers-apply" class="primary-btn">
+                  Apply Grid
+                </button>
+                <button id="btn-paste-layers-replace" class="danger-btn">
+                  Replace All
+                </button>
+              </div>
+              <textarea
+                id="paste-layers"
+                class="paste-box hidden"
+                rows="2"
+              ></textarea>
+              <div id="paste-layers-preview" class="paste-preview hidden"></div>
+            </div>
+            <div class="panel-section" id="layer-props" style="display: none">
+              <h3>Layer Properties</h3>
+              <div class="form-row">
+                <label>Name</label><input type="text" id="prop-name" />
+              </div>
+              <div class="form-row">
+                <label>Top Depth</label
+                ><input type="number" id="prop-top" step="1" />
+              </div>
+              <div class="form-row">
+                <label>Bottom Depth</label
+                ><input type="number" id="prop-bottom" step="1" />
+              </div>
+              <div class="form-row">
+                <label>Thickness</label
+                ><input type="number" id="prop-thickness" readonly />
+              </div>
+              <div class="form-row">
+                <label>Lithology</label
+                ><select id="prop-lithology"></select>
+              </div>
+              <div class="form-row">
+                <label>Color</label><input type="color" id="prop-color" />
+              </div>
+              <div class="form-row">
+                <label>Opacity</label
+                ><input
+                  type="range"
+                  id="prop-opacity"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value="0.85"
+                />
+              </div>
+              <div class="form-row">
+                <label>Visible</label
+                ><input type="checkbox" id="prop-visible" checked />
+              </div>
+              <div class="form-row">
+                <label>Locked</label><input type="checkbox" id="prop-locked" />
+              </div>
+              <div class="form-row">
+                <label>Description</label
+                ><textarea id="prop-desc" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>Comment</label
+                ><textarea
+                  id="prop-comment"
+                  rows="2"
+                  placeholder="Note on this formation..."
+                ></textarea>
+              </div>
+              <div class="btn-row">
+                <button id="btn-apply-layer" class="primary-btn">Apply</button>
+                <button id="btn-delete-layer" class="danger-btn">Delete</button>
+                <button id="btn-dup-layer" class="small-btn">Duplicate</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Well Tab -->
+          <div id="tab-well" class="tab-content">
+            <div class="panel-section">
+              <div class="section-header">
+                <h3>Well Survey</h3>
+                <button id="btn-add-station" class="small-btn">
+                  + Station
+                </button>
+              </div>
+              <div class="table-wrap">
+                <table id="survey-table">
+                  <thead>
+                    <tr>
+                      <th>MD</th>
+                      <th>TVD</th>
+                      <th>Inc°</th>
+                      <th>Azi°</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="survey-body"></tbody>
+                </table>
+              </div>
+              <div class="layer-actions">
+                <button
+                  id="btn-import-survey"
+                  class="small-btn primary-outline"
+                >
+                  📥 File
+                </button>
+                <button id="btn-calc-traj" class="small-btn">
+                  Recalculate
+                </button>
+                <button id="btn-clear-survey" class="small-btn">Clear</button>
+              </div>
+            </div>
+
+            <!-- Direct Paste Survey from Excel -->
+            <div class="panel-section paste-section">
+              <div class="section-header">
+                <h3>📋 Paste Survey from Excel</h3>
+              </div>
+              <p class="hint-text">
+                انسخ من الإكسل والصق هنا. الأعمدة: MD | TVD | Inclination |
+                Azimuth
+              </p>
+              <textarea
+                id="paste-survey"
+                class="paste-box"
+                rows="6"
+                placeholder="0	0	0	90
+500	499.2	10	90
+1000	995.1	25	92
+1500	1460.2	45	95"
+              ></textarea>
+              <div class="btn-row" style="margin-top: 8px">
+                <button id="btn-paste-survey-apply" class="primary-btn">
+                  Apply Paste
+                </button>
+                <button id="btn-paste-survey-replace" class="danger-btn">
+                  Replace All
+                </button>
+              </div>
+              <div id="paste-survey-preview" class="paste-preview hidden"></div>
+            </div>
+
+            <div class="panel-section">
+              <h3>Well Info</h3>
+              <div id="well-info" class="info-box"></div>
+            </div>
+          </div>
+
+          <!-- Casing Tab -->
+          <div id="tab-casing" class="tab-content">
+            <div class="panel-section">
+              <div class="section-header">
+                <h3>Well Casings</h3>
+                <button id="btn-add-casing" class="small-btn">+ Casing</button>
+              </div>
+              <p class="hint-text">
+                Define casing strings (26", 17½", 12¼", etc.) with top/bottom
+                and OD/ID.
+              </p>
+              <div class="form-row">
+                <label>Size</label>
+                <select id="casing-size">
+                  <option>26"</option>
+                  <option>20"</option>
+                  <option>17½"</option>
+                  <option>13⅜"</option>
+                  <option selected>12¼"</option>
+                  <option>9⅝"</option>
+                  <option>7"</option>
+                  <option>4½"</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Top (m)</label
+                ><input type="number" id="casing-top" value="0" />
+              </div>
+              <div class="form-row">
+                <label>Bottom (m)</label
+                ><input type="number" id="casing-bottom" value="500" />
+              </div>
+              <div class="form-row">
+                <label>Sequence</label
+                ><input type="number" id="casing-seq" value="1" />
+              </div>
+              <div class="form-row">
+                <label>Type</label>
+                <select id="casing-type">
+                  <option value="surface">Surface (to surface)</option>
+                  <option value="liner">Liner</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Wall thick (in)</label
+                ><input
+                  type="number"
+                  id="casing-wall"
+                  value="0.5"
+                  step="0.05"
+                  min="0.1"
+                />
+              </div>
+              <div class="form-row">
+                <label>Color</label
+                ><input type="color" id="casing-color" value="#e2e8f0" />
+              </div>
+              <p class="hint-text">
+                Surface = top 0. Liner = from Top. Wall = pipe thickness. No
+                casing = OPEN HOLE.
+              </p>
+              <button id="btn-casing-add-confirm" class="primary-btn">
+                Add Casing
+              </button>
+              <button
+                id="btn-clear-casings"
+                class="small-btn"
+                style="margin-top: 6px; width: 100%"
+              >
+                Clear All Casings
+              </button>
+              <div id="casing-list" style="margin-top: 10px"></div>
+            </div>
+          </div>
+
+          <!-- Comments Tab -->
+          <div id="tab-comments" class="tab-content">
+            <div class="panel-section">
+              <div class="section-header">
+                <h3>Comments on Section</h3>
+                <button id="btn-clear-comments" class="small-btn">Clear</button>
+              </div>
+              <p class="hint-text">Write your comment</p>
+              <div class="form-row">
+                <label>Text</label
+                ><input
+                  type="text"
+                  id="cmt-text"
+                  placeholder="Comment text..."
+                />
+              </div>
+              <div class="form-row">
+                <label>Depth (m)</label
+                ><input type="number" id="cmt-depth" value="500" step="1" />
+              </div>
+              <div class="form-row">
+                <label>Position %</label
+                ><input
+                  type="number"
+                  id="cmt-pos"
+                  value="15"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="form-row">
+                <label>Color</label
+                ><input type="color" id="cmt-color" value="#fbbf24" />
+              </div>
+              <button id="btn-add-comment" class="primary-btn">
+                Add Comment
+              </button>
+              <div id="comments-list" style="margin-top: 10px"></div>
+            </div>
+          </div>
+
+          <!-- Tops Tab -->
+
+          <div id="tab-tops" class="tab-content">
+            <div class="panel-section">
+              <div class="section-header">
+                <h3>Formation Tops</h3>
+                <button id="btn-clear-tops" class="small-btn">Clear</button>
+              </div>
+              <div class="form-row">
+                <label>Name</label
+                ><input type="text" id="top-name" value="Top" />
+              </div>
+              <div class="form-row">
+                <label>Depth (m)</label
+                ><input type="number" id="top-depth" value="0" />
+              </div>
+              <div class="form-row">
+                <label>Thickness</label
+                ><input type="number" id="top-thick" value="0" />
+              </div>
+              <div class="form-row">
+                <label>Color</label
+                ><input type="color" id="top-color" value="#f472b6" />
+              </div>
+              <button id="btn-add-top" class="primary-btn">Add Top</button>
+              <div id="tops-list" style="margin-top: 10px"></div>
+            </div>
+          </div>
+
+          <!-- Header Tab (editable FEL-style) -->
+          <div id="tab-shortcuts" class="tab-content">
+            <div class="panel-section">
+              <h3>Keyboard Shortcuts</h3>
+              <p class="hint-text">
+                Click a binding then press a new key combination. Saved locally.
+              </p>
+              <div id="shortcuts-list"></div>
+              <button
+                id="btn-shortcuts-reset"
+                class="small-btn"
+                style="margin-top: 8px"
+              >
+                Reset Defaults
+              </button>
+            </div>
+          </div>
+          <div id="tab-lithology" class="tab-content">
+            <div class="panel-section">
+              <div class="section-header">
+                <h3>Lithology Library</h3>
+                <button id="btn-add-lith" class="small-btn">+ Custom</button>
+                <button id="btn-clear-lith" class="small-btn">Clear</button>
+              </div>
+              <p class="hint-text">
+                Click ✎ to edit color, pattern (hatching), name.
+              </p>
+              <div id="lith-list"></div>
+              <div id="lith-editor" class="lith-editor" style="display: none">
+                <h4>Edit Lithology</h4>
+                <div class="form-row">
+                  <label>Name</label><input type="text" id="lith-edit-name" />
+                </div>
+                <div class="form-row">
+                  <label>Color</label
+                  ><input type="color" id="lith-edit-color" />
+                </div>
+                <div id="color-palette" class="color-palette"></div>
+                <div class="form-row">
+                  <label>Pattern</label
+                  ><select id="lith-edit-pattern"></select>
+                </div>
+                <div class="form-row">
+                  <label>Description</label
+                  ><input type="text" id="lith-edit-desc" />
+                </div>
+                <div class="btn-row">
+                  <button id="btn-lith-apply" class="primary-btn">Save</button>
+                  <button id="btn-lith-cancel" class="small-btn">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats Tab -->
+          <div id="tab-stats" class="tab-content">
+            <div class="panel-section">
+              <h3>Well Statistics</h3>
+              <div id="stats-panel" class="info-box"></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Bottom Charts -->
+      <div id="charts-toolbar" class="charts-toolbar">
+        <span>Charts Zoom</span>
+        <button
+          type="button"
+          id="btn-chart-zoom-out"
+          class="small-btn"
+          title="Zoom out"
+        >
+          −
+        </button>
+        <span id="chart-zoom-label">100%</span>
+        <button
+          type="button"
+          id="btn-chart-zoom-in"
+          class="small-btn"
+          title="Zoom in"
+        >
+          +
+        </button>
+        <button type="button" id="btn-chart-zoom-reset" class="small-btn">
+          Reset
+        </button>
+      </div>
+      <footer id="charts-panel">
+        <div class="chart-box">
+          <div class="chart-title">Inclination vs MD</div>
+          <div class="chart-scroll"><canvas id="chart-inc"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Azimuth vs MD</div>
+          <div class="chart-scroll"><canvas id="chart-azi"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">DLS (Dogleg) vs MD</div>
+          <div class="chart-scroll"><canvas id="chart-dls"></canvas></div>
+        </div>
+      </footer>
+
+      <!-- Import Modal -->
+      <div id="modal-import" class="modal hidden">
+        <div class="modal-content">
+          <h2 id="import-modal-title">Import Geological Data</h2>
+          <div id="drop-zone" class="drop-zone">
+            <p>📁 Drag & drop .xlsx / .xls / .csv here</p>
+            <p>or</p>
+            <input type="file" id="file-input" accept=".xlsx,.xls,.csv" />
+          </div>
+          <div class="template-links">
+            <a id="download-template" href="data/template.csv" download
+              >⬇️ Download Geology Template</a
+            >
+            <a
+              id="download-survey-template"
+              href="data/survey_template.csv"
+              download
+              >⬇️ Download Survey Template</a
+            >
+          </div>
+          <div id="import-preview" class="hidden"></div>
+          <div class="modal-actions">
+            <button id="btn-import-cancel" class="small-btn">Cancel</button>
+            <button id="btn-import-apply" class="primary-btn" disabled>
+              Add to Project
+            </button>
+            <button id="btn-import-replace" class="danger-btn" disabled>
+              Replace Existing
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-info" class="modal hidden">
+        <div class="modal-content small">
+          <h3 id="info-title">Details</h3>
+          <div id="info-body"></div>
+          <button
+            class="primary-btn"
+            onclick="document.getElementById('modal-info').classList.add('hidden')"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+
+      <input
+        type="file"
+        id="load-project-input"
+        accept=".json"
+        class="hidden"
+      />
+      <input
+        type="file"
+        id="import-survey-input"
+        accept=".xlsx,.xls,.csv"
+        class="hidden"
+      />
+      <div id="mobile-bar">
+        <button type="button" class="tool-btn" id="btn-mob-left">
+          Well controls
+        </button>
+        <button type="button" class="tool-btn" id="btn-mob-right">
+          Panels
+        </button>
       </div>
     </div>
 
-    <div id="form-signup" class="hidden">
-      <label>Name</label>
-      <input id="su-name" type="text" placeholder="Your name" />
-      <label>Email</label>
-      <input id="su-email" type="email" placeholder="you@company.com" />
-      <label>Password (min 6)</label>
-      <input id="su-pass" type="password" placeholder="min 6 characters" />
-      <div class="row">
-        <button type="button" class="primary" id="btn-signup">Create account</button>
-      </div>
-    </div>
-
-    <div class="msg" id="msg"></div>
-    <p class="hint">Accounts are stored securely in Firebase. After sign-in you can use LithoTrack online from any device.</p>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <!-- App scripts (order matters) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // Helpful boot check
-    window.addEventListener('load', function () {
-      if (typeof firebase === 'undefined') {
-        var m = document.getElementById('msg');
-        if (m) {
-          m.style.color = '#f87171';
-          m.textContent = 'Firebase SDK failed to load. Use Live Server (http://localhost) + internet. Do not open file:// directly.';
+    // Block entire app until verified login
+    (function () {
+      async function boot() {
+        if (typeof LithoAuth === 'undefined') {
+          location.replace('login.html');
+          return;
+        }
+        try {
+          var user = await LithoAuth.requireVerifiedUser();
+          if (!user) {
+            location.replace('login.html');
+            return;
+          }
+        } catch (e) {
+          location.replace('login.html');
         }
       }
-    });
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+      else boot();
+    })();
   </script>
-  <script>
-    const msg = document.getElementById('msg');
-    function show(t, ok) {
-      msg.style.color = ok ? '#34d399' : '#f87171';
-      msg.textContent = t || '';
-    }
-    function mapErr(e) {
-      const c = (e && e.code) || '';
-      if (c.includes('email-already-in-use')) return 'Email already registered';
-      if (c.includes('weak-password')) return 'Password too weak (min 6)';
-      if (c.includes('invalid-email')) return 'Invalid email';
-      if (c.includes('user-not-found') || c.includes('wrong-password') || c.includes('invalid-credential'))
-        return 'Wrong email or password';
-      if (c.includes('network')) return 'Network error — check internet';
-      return (e && e.message) || 'Something went wrong';
-    }
-
-    LithoAuth.onAuth(function (user) {
-      if (user) location.replace('index.html');
-    });
-
-    document.getElementById('tab-login').onclick = () => {
-      document.getElementById('tab-login').classList.add('active');
-      document.getElementById('tab-signup').classList.remove('active');
-      document.getElementById('form-login').classList.remove('hidden');
-      document.getElementById('form-signup').classList.add('hidden');
-      show('');
-    };
-    document.getElementById('tab-signup').onclick = () => {
-      document.getElementById('tab-signup').classList.add('active');
-      document.getElementById('tab-login').classList.remove('active');
-      document.getElementById('form-signup').classList.remove('hidden');
-      document.getElementById('form-login').classList.add('hidden');
-      show('');
-    };
-
-    document.getElementById('btn-login').onclick = async () => {
-      show('Signing in…', true);
-      try {
-        await LithoAuth.login(
-          document.getElementById('login-email').value,
-          document.getElementById('login-pass').value
-        );
-        location.replace('index.html');
-      } catch (e) { show(mapErr(e)); }
-    };
-
-    document.getElementById('btn-signup').onclick = async () => {
-      show('Creating account…', true);
-      try {
-        await LithoAuth.signup(
-          document.getElementById('su-name').value,
-          document.getElementById('su-email').value,
-          document.getElementById('su-pass').value
-        );
-        location.replace('index.html');
-      } catch (e) { show(mapErr(e)); }
-    };
-  </script>
-</body>
+  <script src="js/lithology.js"></script>
+    <script src="js/layers.js"></script>
+    <script src="js/well.js"></script>
+    <script src="js/wells.js"></script>
+    <script src="js/logs.js"></script>
+    <script src="js/geology.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/import.js"></script>
+    <script src="js/globe.js"></script>
+    <script src="js/shortcuts.js"></script>
+    <script src="js/workspace.js"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>
