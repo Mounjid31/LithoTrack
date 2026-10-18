@@ -1,5 +1,8 @@
 /**
- * LithoTrack — Firebase Authentication + user profiles (Firestore)
+ * LithoTrack — Firebase Auth + Firestore profiles
+ * - Login required for app
+ * - Email verification required
+ * - Password reset supported
  */
 const LithoAuth = {
   app: null,
@@ -17,7 +20,7 @@ const LithoAuth = {
           return;
         }
         if (Date.now() - t0 > timeoutMs) {
-          reject(new Error('Firebase SDK not loaded. Use https:// site or Live Server, and check internet.'));
+          reject(new Error('Firebase SDK not loaded. Use https or Live Server + internet.'));
           return;
         }
         setTimeout(tick, 50);
@@ -41,8 +44,9 @@ const LithoAuth = {
 
   isAdmin(email) {
     var list = window.LITHO_ADMIN_EMAILS || [];
-    return !!email && list.map(function (e) { return String(e).toLowerCase().trim(); })
-      .indexOf(String(email).toLowerCase().trim()) >= 0;
+    return !!email && list.map(function (e) {
+      return String(e).toLowerCase().trim();
+    }).indexOf(String(email).toLowerCase().trim()) >= 0;
   },
 
   saveProfile: async function (user, extra) {
@@ -52,6 +56,7 @@ const LithoAuth = {
       uid: user.uid,
       email: (user.email || '').toLowerCase(),
       name: extra.name != null ? extra.name : (user.displayName || ''),
+      emailVerified: !!user.emailVerified,
       lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
       provider: 'password'
     };
@@ -74,13 +79,25 @@ const LithoAuth = {
     if (name) {
       try { await user.updateProfile({ displayName: name }); } catch (e) {}
     }
+
+    // Send verification email
+    try {
+      await user.sendEmailVerification();
+    } catch (e) {
+      console.warn('sendEmailVerification failed', e);
+    }
+
     try {
       await this.saveProfile(user, { name: name, isNew: true });
     } catch (e) {
-      console.error('Firestore profile write failed on signup:', e);
-      throw new Error('Account created in Auth, but profile was not saved to database. Check Firestore Rules. (' + (e.message || e) + ')');
+      console.error('Firestore profile write failed:', e);
+      throw new Error('Account created, but profile was not saved. Check Firestore Rules.');
     }
-    return user;
+
+    // Sign out until they verify (optional hard gate)
+    try { await this.auth.signOut(); } catch (e) {}
+
+    return { needsVerification: true, email: email };
   },
 
   login: async function (email, password) {
@@ -89,12 +106,45 @@ const LithoAuth = {
     password = String(password || '');
     var cred = await this.auth.signInWithEmailAndPassword(email, password);
     var user = cred.user;
+
+    // Reload to get latest emailVerified status
+    try { await user.reload(); } catch (e) {}
+
+    if (!user.emailVerified) {
+      try { await user.sendEmailVerification(); } catch (e) {}
+      await this.auth.signOut();
+      var err = new Error('Please verify your email first. We sent a confirmation link to ' + email);
+      err.code = 'auth/email-not-verified';
+      throw err;
+    }
+
     try {
       await this.saveProfile(user, { isNew: false });
     } catch (e) {
       console.warn('profile update failed', e);
     }
     return user;
+  },
+
+  /** Send password reset email */
+  resetPassword: async function (email) {
+    await this.init();
+    email = String(email || '').trim().toLowerCase();
+    if (!email.includes('@')) throw new Error('Enter a valid email');
+    await this.auth.sendPasswordResetEmail(email);
+    return true;
+  },
+
+  /** Resend verification while signed in or after failed login attempt */
+  resendVerification: async function (email, password) {
+    await this.init();
+    email = String(email || '').trim().toLowerCase();
+    password = String(password || '');
+    var cred = await this.auth.signInWithEmailAndPassword(email, password);
+    var user = cred.user;
+    await user.sendEmailVerification();
+    await this.auth.signOut();
+    return true;
   },
 
   logout: async function () {
@@ -115,27 +165,42 @@ const LithoAuth = {
     });
   },
 
-  requireUser: async function () {
+  /**
+   * Require logged-in + verified email.
+   * Redirects to login.html if not.
+   */
+  requireVerifiedUser: async function () {
     await this.init();
     var self = this;
     return new Promise(function (resolve) {
-      var unsub = self.auth.onAuthStateChanged(function (user) {
+      var unsub = self.auth.onAuthStateChanged(async function (user) {
         unsub();
-        resolve(user || null);
+        if (!user) {
+          resolve(null);
+          return;
+        }
+        try { await user.reload(); } catch (e) {}
+        if (!user.emailVerified) {
+          try { await self.auth.signOut(); } catch (e) {}
+          resolve(null);
+          return;
+        }
+        resolve(user);
       });
     });
   },
 
-  /** List all user profiles (needs Firestore read permission) */
+  requireUser: async function () {
+    return this.requireVerifiedUser();
+  },
+
   listUsers: async function () {
     await this.init();
     var snap;
     try {
-      // simple get — no composite index required
       snap = await this.db.collection('users').get();
     } catch (e) {
-      console.error(e);
-      throw new Error('Cannot read users collection. Fix Firestore Rules (allow read for signed-in users). ' + (e.message || e));
+      throw new Error('Cannot read users. Check Firestore Rules. ' + (e.message || e));
     }
     var list = snap.docs.map(function (d) {
       var x = d.data() || {};
@@ -143,6 +208,7 @@ const LithoAuth = {
         uid: d.id,
         email: x.email || '',
         name: x.name || '',
+        emailVerified: !!x.emailVerified,
         createdAt: x.createdAt && x.createdAt.toDate ? x.createdAt.toDate() : null,
         lastLoginAt: x.lastLoginAt && x.lastLoginAt.toDate ? x.lastLoginAt.toDate() : null
       };
